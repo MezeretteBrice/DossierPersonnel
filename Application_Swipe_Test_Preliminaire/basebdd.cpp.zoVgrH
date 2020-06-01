@@ -1,0 +1,247 @@
+#include "basebdd.h"
+#include "QDebug"
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+#include <QMessageBox>
+BaseBDD::BaseBDD(QObject *parent): QObject(parent), erreurConnexion(false)
+{
+    DB = QSqlDatabase::addDatabase("QSQLITE");
+           DB.setHostName("localhost");
+           DB.setDatabaseName("/home/bmezerette/ControleurDeRonde2020");
+           DB.setUserName("root");
+           DB.setPassword("totototo");
+
+           DB.open();
+
+              qDebug() << DB.connectionName();
+              qDebug() << DB.isOpen();
+              qDebug() << DB.contains();
+
+           if(!DB.isOpen())           // Si l'ouverture as eu un problème ou non, afficher le message correspondant
+                     {
+                         qDebug("Erreur Ouverture");
+                     }
+                     else
+                     {
+                         qDebug("Ouverture reussie");
+          }
+           emit erreurChanged();
+}
+
+QStringList BaseBDD::getRonde()
+{
+    if(!erreurConnexion)
+    {
+        ronde.clear();
+        recuperer("select nomRonde from Ronde;", ronde);
+    }
+    return ronde;
+}
+
+QStringList BaseBDD::getPointeaux()
+{
+    if(!erreurConnexion)
+    {
+       pointeaux.clear();
+       recupererPointeaux("select nom from pointeaux;", pointeaux);
+    }
+    return pointeaux;
+}
+
+bool BaseBDD::recuperer(QString requete, QStringList &donnees)
+{
+    QSqlQuery r;
+    bool retour;
+
+    if(DB.isOpen())
+    {
+        retour = r.exec(requete);
+        if(retour)
+        {
+            // pour chaque enregistrement
+            while ( r.next() )
+            {
+                // on stocke l'enregistrement dans le QStringList
+                donnees << r.value(0).toString();
+            }
+            return true;
+        }
+        else
+        {
+            qDebug() << Q_FUNC_INFO << QString::fromUtf8("Erreur : %1 pour la requête %2").arg(r.lastError().text()).arg(requete);
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+bool BaseBDD::recuperer(QString requete, QVector<QStringList> &donnees)
+{
+    QSqlQuery r;
+    bool retour;
+    QStringList data;
+
+    if(DB.isOpen())
+    {
+        retour = r.exec(requete);
+        if(retour)
+        {
+            // pour chaque enregistrement
+            while ( r.next() )
+            {
+                //on stocke dans une liste de QString
+                for(int i=0;i<r.record().count();i++)
+                    data << r.value(i).toString();
+
+                // on stocke dans le QVector
+                donnees.push_back(data);
+
+                //le prochain enregistrement, efface le QString
+                data.clear();
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+bool BaseBDD::recuperer(QString requete, QString &donnee)
+{
+    QSqlQuery r;
+    bool retour;
+
+    if(DB.isOpen())
+    {
+        retour = r.exec(requete);
+        if(retour)
+        {
+            // on se positionne sur l'enregistrement
+            r.first();
+
+            // on vérifie l'état de l'enregistrement retourné
+            if(!r.isValid())
+            {
+                return false;
+            }
+
+            // on récupère sous forme de QString la valeur du champ
+            if(r.isNull(0))
+            {
+                return false;
+            }
+            donnee = r.value(0).toString();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+bool BaseBDD::recupererPointeaux(QString requete, QStringList &donnees)
+{
+    QSqlQuery r;
+    bool retour;
+
+    if(DB.isOpen())
+    {
+        retour = r.exec(requete);
+        if(retour)
+        {
+            // pour chaque enregistrement
+            while ( r.next() )
+            {
+                // on stocke l'enregistrement dans le QStringList
+                donnees << r.value(0).toString();
+            }
+            return true;
+        }
+        else
+        {
+            qDebug() << Q_FUNC_INFO << QString::fromUtf8("Erreur : %1 pour la requête %2").arg(r.lastError().text()).arg(requete);
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+bool BaseBDD::recupererPointeaux(QString requete, QVector<QStringList> &donnees)
+{
+    QSqlQuery r;
+    bool retour;
+    QStringList data;
+
+    if(DB.isOpen())
+    {
+        retour = r.exec(requete);
+        if(retour)
+        {
+            // pour chaque enregistrement
+            while ( r.next() )
+            {
+                //on stocke dans une liste de QString
+                for(int i=0;i<r.record().count();i++)
+                    data << r.value(i).toString();
+
+                // on stocke dans le QVector
+                donnees.push_back(data);
+
+                // on efface la liste de QString pour le prochain enregistrement
+                data.clear();
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+bool BaseBDD::recupererPointeaux(QString requete, QString &donnee)
+{
+    QSqlQuery r;
+    bool retour;
+
+    if(DB.isOpen())
+    {
+        retour = r.exec(requete);
+        if(retour)
+        {
+            // on se positionne sur l'enregistrement
+            r.first();
+
+            // on vérifie l'état de l'enregistrement retourné
+            if(!r.isValid())
+            {
+                return false;
+            }
+
+            // on récupère sous forme de QString la valeur du champ
+            if(r.isNull(0))
+            {
+                return false;
+            }
+            donnee = r.value(0).toString();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+        return false;
+}

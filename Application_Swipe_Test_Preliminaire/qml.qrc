@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Page1Form.ui.qml</file>
+        <file>Page2Form.ui.qml</file>
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>Logo_NFC.jpg</file>
+        <file>Page3Form.ui.qml</file>
+        <file>Page4Form.ui.qml</file>
+        <file>main.js</file>
+        <file>Page5Form.ui.qml</file>
+        <file>Page5Form.js</file>
+    </qresource>
+</RCC>
